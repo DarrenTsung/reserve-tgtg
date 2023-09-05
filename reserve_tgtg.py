@@ -1,5 +1,6 @@
 import time
 import os
+import pytz
 from tgtg import TgtgClient
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -27,9 +28,10 @@ while True:
 
     # If item is sold out, check when it was sold out
     if 'sold_out_at' in item and item['sold_out_at']:
-        sold_out_at = datetime.strptime(item['sold_out_at'], '%Y-%m-%dT%H:%M:%SZ')
-        if datetime.now() - sold_out_at < timedelta(minutes=30):
-            print(f"{get_current_timestamp()} - Item was sold out in the last 30 minutes. Exiting...")
+        sold_out_at_utc = datetime.strptime(item['sold_out_at'], '%Y-%m-%dT%H:%M:%SZ')
+        sold_out_at_local = sold_out_at_utc.replace(tzinfo=pytz.utc).astimezone(tz=None)  # convert UTC to local time
+        if datetime.now(pytz.utc).astimezone(tz=None) - sold_out_at_local < timedelta(minutes=10): # make datetime.now() timezone aware
+            print(f"{get_current_timestamp()} - Item was sold out in the last 10 minutes. Exiting...")
             break
 
     # If item is available, reserve it
