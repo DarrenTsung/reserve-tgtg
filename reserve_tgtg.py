@@ -42,7 +42,8 @@ while True:
         # Check order status
         order_status = client.get_order_status(order['id'])
         if order_status['state'] == 'RESERVED':
-            print(f"{get_current_timestamp()} - Order created and reserved successfully: {order}")
+            print(f"{get_current_timestamp()} - Order created and reserved successfully, order id: {order['id']}")
+            print(f"{get_current_timestamp()} - Full order details: {order}")
             break
         else:
             print(f"{get_current_timestamp()} - Failed to create order. Retrying in 500ms...")
