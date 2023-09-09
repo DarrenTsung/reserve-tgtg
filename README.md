@@ -25,9 +25,6 @@ TGTG_ACCESS_TOKEN="..."
 TGTG_REFRESH_TOKEN="..."
 TGTG_USER_ID=...
 TGTG_COOKIE="..."
-
-# To be filled out after get the item id of the item you're trying to reserve.
-# TGTG_STORE_ITEM_ID=...
 ```
 
 Then you can use the `get_favorite_items.py` to list all of your favorite items. The script reads the .env file to initialize the client with the correct credentials.
@@ -36,16 +33,10 @@ Then you can use the `get_favorite_items.py` to list all of your favorite items.
 python get_favorite_items.py
 ```
 
-Find the order_id of the item you're trying to reserve and place it in the .env:
-
-```
-TGTG_STORE_ITEM_ID=...
-```
-
 Then you can call the `reserve_tgtg.py` script:
 
 ```
-python reserve_tgtg.py
+python3 reserve_tgtg.py --store-item-id=632966 --num-items=2
 ```
 
 The script will check the item status and attempt to reserve it every 500ms. Note that the unofficial python API does not support paying for the order, so the order will only be reserved and will stay reserved for up to 5 minutes.
