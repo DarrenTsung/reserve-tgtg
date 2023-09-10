@@ -27,6 +27,8 @@ args = parser.parse_args()
 # Initialize client
 client = TgtgClient(access_token=access_token, refresh_token=refresh_token, user_id=user_id, cookie=cookie)
 
+early_warning_flag = False
+
 while True:
     # Get item status
     item = client.get_item(item_id=args.store_item_id)
@@ -38,12 +40,18 @@ while True:
     
     print(f"{get_current_timestamp()} - Next purchase time is at {next_purchase_time_local}. Time until next purchase: {time_until_next_purchase}")
 
+    # Early warning 3 minutes before the reserved time
+    if time_until_next_purchase.total_seconds() <= 180 and not early_warning_flag:
+        os.system('say "Less than three minutes till reservation time"') 
+        early_warning_flag = True
+
     # If item is sold out, check when it was sold out
     if 'sold_out_at' in item and item['sold_out_at']:
         sold_out_at_utc = datetime.strptime(item['sold_out_at'], '%Y-%m-%dT%H:%M:%SZ')
         sold_out_at_local = sold_out_at_utc.replace(tzinfo=pytz.utc).astimezone(tz=None)  # convert UTC to local time
         if datetime.now(pytz.utc).astimezone(tz=None) - sold_out_at_local < timedelta(minutes=10): # make datetime.now() timezone aware
             print(f"{get_current_timestamp()} - Item was sold out in the last 10 minutes. Exiting...")
+            os.system('say "Item was sold out in the last 10 minutes. Exiting."')
             break
 
     # If item is available, reserve it
@@ -56,6 +64,7 @@ while True:
         if order_status['state'] == 'RESERVED':
             print(f"{get_current_timestamp()} - Order created and reserved successfully, order id: {order['id']}")
             print(f"{get_current_timestamp()} - Full order details: {order}")
+            os.system('say "Order created and reserved successfully"')
             break
         else:
             print(f"{get_current_timestamp()} - Failed to create order. Retrying in 500ms...")
